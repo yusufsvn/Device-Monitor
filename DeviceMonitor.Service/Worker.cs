@@ -6,6 +6,9 @@ namespace DeviceMonitor.Service
 {
     public class Worker(ILogger<Worker> logger) : BackgroundService
     {
+
+        public readonly Guid DeviceId = Guid.NewGuid();
+        public readonly string FirmVer = "1.2.44.7";
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var publisher = new PublisherSocket();
@@ -16,7 +19,14 @@ namespace DeviceMonitor.Service
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {
-                    SensorData data = CreateSensorData();
+                    var device = InitDevice();
+                    SensorData SensorData = CreateSensorData();
+                    var data = new
+                    {
+                        SensorData,
+                        device
+                    };
+                    
                     string JsonString = JsonSerializer.Serialize(data);
                     publisher
                         .SendMoreFrame("SensorDataCreator") 
@@ -47,6 +57,18 @@ namespace DeviceMonitor.Service
             return data;
         }
 
+        private Device InitDevice()
+        {
+            Device device = new()
+            {
+                DeviceId = DeviceId,
+                FirmwareVersion = FirmVer,
+                IntervalMs = 1000,
+                IsRunning = true,
+                TimestampUTC = DateTime.UtcNow
+            };
+            return device;
+        }
 
     }
 }
