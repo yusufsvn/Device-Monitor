@@ -11,6 +11,7 @@ namespace DeviceMonitor.Service
         public string FirmwareVersion { get; set; } = string.Empty;
         public int IntervalMs { get; set; }
         public DateTime TimestampUTC { get; set; }
+        public bool IsAlarm { get; set; }
 
     }
 }

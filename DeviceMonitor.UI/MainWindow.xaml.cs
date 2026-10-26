@@ -16,9 +16,14 @@ namespace DeviceMonitor.UI
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        private readonly TelemetryClient _client = new();
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new ViewModel(_client);
+            _client.Start();
+            Closed += (_, _) => _client.Dispose();
         }
     }
 }

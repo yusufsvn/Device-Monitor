@@ -21,10 +21,14 @@ namespace DeviceMonitor.Service
                 {
                     var device = InitDevice();
                     SensorData SensorData = CreateSensorData();
-                    var data = new
+                    if (SensorData.Pressure < 500f || SensorData.Temperature > 500f)
                     {
-                        SensorData,
-                        device
+                        device.IsAlarm = true;
+                    }
+                    var data = new TelemetryMessage
+                    {
+                        DeviceInfo = device,
+                        Sensordata = SensorData,
                     };
                     
                     string JsonString = JsonSerializer.Serialize(data);
@@ -65,7 +69,8 @@ namespace DeviceMonitor.Service
                 FirmwareVersion = FirmVer,
                 IntervalMs = 1000,
                 IsRunning = true,
-                TimestampUTC = DateTime.UtcNow
+                TimestampUTC = DateTime.UtcNow,
+                IsAlarm = false
             };
             return device;
         }
