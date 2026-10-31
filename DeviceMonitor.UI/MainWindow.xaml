@@ -19,5 +19,13 @@
 
         <TextBlock Text="ALARM" Foreground="Red" FontSize="24" FontWeight="Bold" Margin="0,16,0,0"
                Visibility="{Binding IsAlarm, Converter={StaticResource BoolToVis}}"/>
+
+
+        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+            <Button Content="Start" Command="{Binding StartCommand}" Width="80" Margin="0,0,8,0"/>
+            <Button Content="Stop" Command="{Binding StopCommand}" Width="80"/>
+        </StackPanel>
+
+        <TextBlock Text="{Binding CommandResult}" Margin="0,8,0,0"/>
     </StackPanel>
 </Window>

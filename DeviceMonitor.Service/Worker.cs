@@ -4,11 +4,10 @@ using System.Text.Json;
 
 namespace DeviceMonitor.Service
 {
-    public class Worker(ILogger<Worker> logger) : BackgroundService
+    public class Worker(ILogger<Worker> logger,Device _device) : BackgroundService
     {
+        public Device device = _device;
 
-        public readonly Guid DeviceId = Guid.NewGuid();
-        public readonly string FirmVer = "1.2.44.7";
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var publisher = new PublisherSocket();
@@ -16,28 +15,29 @@ namespace DeviceMonitor.Service
 
             while (!stoppingToken.IsCancellationRequested)
             {
-
                 if (logger.IsEnabled(LogLevel.Information))
-                {
-                    var device = InitDevice();
-                    SensorData SensorData = CreateSensorData();
-                    if (SensorData.Pressure < 500f || SensorData.Temperature > 500f)
+                {   
+                    if(device.IsRunning == true)
                     {
-                        device.IsAlarm = true;
+                        SensorData SensorData = CreateSensorData();
+                        if (SensorData.Pressure < 500f || SensorData.Temperature > 500f)
+                        {
+                            device.IsAlarm = true;
+                        }
+                        var data = new TelemetryMessage
+                        {
+                            DeviceInfo = device,
+                            Sensordata = SensorData,
+                        };
+
+                        string JsonString = JsonSerializer.Serialize(data);
+                        publisher
+                            .SendMoreFrame("SensorDataCreator")
+                            .SendFrame(JsonString);
+                        logger.LogInformation("Sensor Data created and sended {time}", DateTimeOffset.Now);
                     }
-                    var data = new TelemetryMessage
-                    {
-                        DeviceInfo = device,
-                        Sensordata = SensorData,
-                    };
-                    
-                    string JsonString = JsonSerializer.Serialize(data);
-                    publisher
-                        .SendMoreFrame("SensorDataCreator") 
-                        .SendFrame(JsonString);
-                    logger.LogInformation("Sensor Data created and sended {time}", DateTimeOffset.Now);
+                    await Task.Delay(device.IntervalMs, stoppingToken);
                 }
-                await Task.Delay(1000, stoppingToken);
             }
         }
 
@@ -53,7 +53,6 @@ namespace DeviceMonitor.Service
             return sensorData;
  
         }
-
         private float CreateRandomFloat(float max,float min)
         {
             Random rnd = new();
@@ -61,19 +60,7 @@ namespace DeviceMonitor.Service
             return data;
         }
 
-        private Device InitDevice()
-        {
-            Device device = new()
-            {
-                DeviceId = DeviceId,
-                FirmwareVersion = FirmVer,
-                IntervalMs = 1000,
-                IsRunning = true,
-                TimestampUTC = DateTime.UtcNow,
-                IsAlarm = false
-            };
-            return device;
-        }
+
 
     }
 }

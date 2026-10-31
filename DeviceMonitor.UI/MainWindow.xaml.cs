@@ -18,10 +18,11 @@ namespace DeviceMonitor.UI
     {
 
         private readonly TelemetryClient _client = new();
+        private readonly CommandClient _commandClient = new();
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new ViewModel(_client);
+            DataContext = new ViewModel(_client,_commandClient);
             _client.Start();
             Closed += (_, _) => _client.Dispose();
         }

@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="DeviceMonitor.Service/DeviceMonitor.Service.csproj" />
+  <Project Path="DeviceMonitor.TestCommand/DeviceMonitor.TestCommand.csproj" Id="7e228be0-baeb-45b3-a7a0-6cc946a7d119" />
   <Project Path="DeviceMonitor.TestSubscriber/DeviceMonitor.TestSubscriber.csproj" />
   <Project Path="DeviceMonitor.UI/DeviceMonitor.UI.csproj" />
 </Solution>
